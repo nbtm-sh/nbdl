@@ -5,7 +5,8 @@ CREATE TABLE `urls` (
     contentId TEXT NOT NULL,
     contentHost INT NOT NULL,
     dateCreated DATE NOT NULL,
-    dateExpire DATE NOT NULL
+    dateExpire DATE NOT NULL,
+    contentFileName TEXT NOT NULL
 );
 
 COMMIT;
