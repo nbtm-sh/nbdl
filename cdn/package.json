@@ -1,0 +1,22 @@
+{
+  "name": "nbdl.cdn",
+  "version": "1.0.0",
+  "description": "Content server backend for nbdl",
+  "main": "index.js",
+  "scripts": {
+    "test": "node index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/nbtm-sh/nbdl.git"
+  },
+  "author": "nbtm",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/nbtm-sh/nbdl/issues"
+  },
+  "homepage": "https://github.com/nbtm-sh/nbdl#readme",
+  "dependencies": {
+    "express": "^4.17.1"
+  }
+}
