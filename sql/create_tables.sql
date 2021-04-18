@@ -1,8 +1,8 @@
 START TRANSACTION;
 USE `nbdl`;
 CREATE TABLE `urls` (
-    id INT NOT NULL PRIMARY KEY,
-    contentId TEXT NOT NULL UNIQUE,
+    id varchar(256) NOT NULL PRIMARY KEY,
+    contentId TEXT NOT NULL,
     contentHost TEXT NOT NULL,
     dateCreated DATE NOT NULL,
     dateExpire DATE NOT NULL,
