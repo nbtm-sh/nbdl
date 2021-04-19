@@ -37,19 +37,23 @@ async def on_message(message : discord.Message):
     if client.user not in message.mentions:
         # Bot has not been mentioned so the message can be disregaurded
         return
+    
+    print(message.reference)
     if (message.reference != None):
         message.reference.fail_if_not_exists = True
         msg = discord.utils.get(await message.channel.history(limit=100).flatten(), id=message.reference.to_message_reference_dict()["message_id"])
         print("Message replied to:", msg.content)
-        process_urls = find_urls(message.content)
+        process_urls = find_urls(msg.content)
 
-        print(process_urls)
+        print(process_urls, msg.content)
     
     elif (len(find_urls(message.content)) != 0):
         process_urls = find_urls(message.content)
     
     else:
         return
+    
+    print(process_urls, message.content)
 
     if (len(process_urls) != 0):
         sent_message = await message.channel.send("Please wait...")
