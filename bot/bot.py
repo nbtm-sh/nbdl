@@ -1,4 +1,4 @@
-import youtube_dl, backend, discord
+import youtube_dl, backend, discord, re
 from dotenv import dotenv_values, load_dotenv
 
 environment = dotenv_values(".env")
@@ -14,6 +14,9 @@ bkend = backend.Backend(
 
 client = discord.Client()
 
+def find_urls(string):
+    return re.findall(r'(https?://[^\s]+)', string)
+
 def remove_embeds_from_content(embeds, content):
     for i in embeds:
         content = content.replace(i, "")
@@ -27,7 +30,7 @@ async def on_ready():
 @client.event
 async def on_message(message : discord.Message):
     if (message.author == client.user):
-        return
+        return 
     
     #print(dir(message))
 
@@ -38,12 +41,12 @@ async def on_message(message : discord.Message):
         message.reference.fail_if_not_exists = True
         msg = discord.utils.get(await message.channel.history(limit=100).flatten(), id=message.reference.to_message_reference_dict()["message_id"])
         print("Message replied to:", msg.content)
-        process_urls = [i.url for i in msg.embeds]
+        process_urls = find_urls(message.content)
 
         print(process_urls)
     
-    elif (len(message.embeds) != 0):
-        process_urls = [i.url for i in message.embeds]
+    elif (len(find_urls(message.content)) != 0):
+        process_urls = find_urls(message.content)
     
     else:
         return
@@ -59,7 +62,7 @@ async def on_message(message : discord.Message):
 
         await sent_message.edit(embed=send_message_embed)
 
-        final_message += bkend.add_video(url) + "\n"
+        final_message += bkend.add_video(url) + ".mp4" + "\n"
      
     if (len(process_urls) != 0):
         final_message = final_message.strip()
