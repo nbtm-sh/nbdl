@@ -4,5 +4,6 @@
         "password": "",
         "host": "",
         "database": ""
-    }
+    },
+    "content_dir": ""
 }
