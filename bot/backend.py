@@ -68,4 +68,6 @@ class Backend:
         sql_cursor = self.sqldb.cursor()
         sql_cursor.execute(sql)
 
+        self.sqldb.commit()
+
         return "http://" + self.content_host + "/" + vid_url
