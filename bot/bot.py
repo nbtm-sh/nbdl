@@ -66,10 +66,13 @@ async def on_message(message : discord.Message):
 
         await sent_message.edit(embed=send_message_embed)
 
-        final_message += bkend.add_video(url) + ".mp4" + "\n"
-     
+        final_message += bkend.add_video(url) + "\n"
+    
     if (len(process_urls) != 0):
         final_message = final_message.strip()
+
+        if (".mkv" in final_message):
+            final_message += "\n One (or more) of these videos is an MKV file. Sadly, my server does not have enough power to convert this video for you. Though, there are many online tools that can help you :)"
 
         await sent_message.delete()
         await message.channel.send(final_message)

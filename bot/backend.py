@@ -1,4 +1,4 @@
-import requests, mysql.connector, urlgen, youtube_dl, datetime, hashlib
+import requests, mysql.connector, urlgen, youtube_dl, datetime, hashlib, os.path
 
 class Backend:
     def __init__(self, sql_username, sql_password, sql_host, sql_database, download_output, content_host):
@@ -29,6 +29,14 @@ class Backend:
         sql_result = sql_cursor.fetchall()
 
         return sql_result[0][0] != 0
+    
+    @staticmethod
+    def check_if_mkv_version(filename):
+        filename_no_ext = '.'.join(filename.split(".")[::-1][1:][::-1])
+        filename_mkv = filename_no_ext + ".mkv";
+
+        return filename_mkv if (os.path.isfile(filename_mkv)) else False
+        
 
     def add_video(self, video_url, progress_hook=None):
         # Generate URL for the video
@@ -41,24 +49,32 @@ class Backend:
         vid_int = hashlib.md5(video_url.encode()).hexdigest()
         if self.video_exists(vid_int):
             # get the video content id
-            query = f"SELECT `contentId` FROM `urls` WHERE id='{vid_int}';"
+            query = f"SELECT * FROM `urls` WHERE id='{vid_int}';"
             sql_cursor = self.sqldb.cursor()
             sql_cursor.execute(query)
 
             sql_result = sql_cursor.fetchall()
 
-            return "http://" + self.content_host + "/" + sql_result[0][0]
+            print(sql_result[0])
+
+            return "http://" + self.content_host + "/" + sql_result[0][1] + "." + sql_result[0][5].split(".")[::-1][0]
             
         ytdl = youtube_dl.YoutubeDL({
-            'outtmpl': self.output_dir + "/" + vid_url + ".mp4",
+            'outtmpl': self.output_dir + "/" + vid_url + ".%(ext)s",
             'noplaylist': True
         })
-        ytdl.extract_info(video_url, download=True)
+        vx = ytdl.extract_info(video_url, download=True)
+        ext = vx["ext"]
         
         date_created = datetime.datetime.now()
         date_expire = date_created + datetime.timedelta(days=365)
 
-        content_file_name = self.output_dir + "/" + vid_url + ".mp4"
+        content_file_name = self.output_dir + "/" + vid_url + "." + ext
+        if (self.check_if_mkv_version(content_file_name)):
+            content_file_name = self.check_if_mkv_version(content_file_name)
+            ext = "mkv"
+        
+        print(content_file_name)
         date_created = date_created.strftime('%Y-%m-%d %H:%M:%S')
         date_expire = date_expire.strftime('%Y-%m-%d %H:%M:%S')
         sql = f"INSERT INTO `urls` (`id`, `contentId`, `contentHost`, `dateCreated`, `dateExpire`, `contentFileName`) VALUES (\"{vid_int}\", \"{vid_url}\", \"cdn.nbti.net\", \"{date_created}\", \"{date_expire}\", \"{content_file_name}\");"
@@ -70,4 +86,4 @@ class Backend:
 
         self.sqldb.commit()
 
-        return "http://" + self.content_host + "/" + vid_url
+        return "http://" + self.content_host + "/" + vid_url + "." + ext
