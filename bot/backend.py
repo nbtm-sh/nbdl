@@ -10,6 +10,24 @@ class Backend:
         )
         self.content_host = content_host
         self.output_dir = download_output
+
+        self.sql_host = sql_host
+        self.sql_username = sql_username
+        self.sql_password = sql_password
+        self.sql_database = sql_database
+    
+    def sql_auth_recon(self):
+        try:
+            sql_cursor = self.sqldb.cursor()
+            return True
+        except mysql.connector.errors.OperationalError:
+            self.sqldb = mysql.connector.connect(
+                host=self.sql_host,
+                user=self.sql_username,
+                password=self.sql_password,
+                database=self.sql_database
+            )
+            return False
     
     def url_exists(self, url):
         query = f"SELECT count(*) FROM `urls` WHERE contentId='{url}';"
@@ -33,13 +51,14 @@ class Backend:
     @staticmethod
     def check_if_mkv_version(filename):
         filename_no_ext = '.'.join(filename.split(".")[::-1][1:][::-1])
-        filename_mkv = filename_no_ext + ".mkv";
+        filename_mkv = filename_no_ext + ".mkv"
 
         return filename_mkv if (os.path.isfile(filename_mkv)) else False
         
 
     def add_video(self, video_url, progress_hook=None):
         # Generate URL for the video
+        self.sql_auth_recon()
         while True:
             vid_url = urlgen.random_string(32)
             # Check if the video URL is already in the database
